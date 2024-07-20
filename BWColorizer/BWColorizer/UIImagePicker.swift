@@ -8,6 +8,10 @@
 import SwiftUI
 import UniformTypeIdentifiers
 
+/// View to easily pick ``UIImage`` that allows editing
+/// /// - Parameters:
+///   - uiImage:  Binding to UIImage
+///   - onDone:  Closure to close the PickerController
 struct UIImagePickerView: UIViewControllerRepresentable {
     let uiImage: Binding<UIImage?>
     let onDone: () -> Void
