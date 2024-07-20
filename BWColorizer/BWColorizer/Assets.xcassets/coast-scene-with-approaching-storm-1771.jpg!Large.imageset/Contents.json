@@ -1,0 +1,21 @@
+{
+  "images" : [
+    {
+      "filename" : "coast-scene-with-approaching-storm-1771.jpg!Large.jpg",
+      "idiom" : "universal",
+      "scale" : "1x"
+    },
+    {
+      "idiom" : "universal",
+      "scale" : "2x"
+    },
+    {
+      "idiom" : "universal",
+      "scale" : "3x"
+    }
+  ],
+  "info" : {
+    "author" : "xcode",
+    "version" : 1
+  }
+}
