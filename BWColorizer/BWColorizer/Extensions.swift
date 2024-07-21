@@ -40,13 +40,31 @@ struct AppError: LocalizedError {
 }
 
 extension UIImage {
-    ///  A method to resize the UIImage to 
+    ///  A method to resize the UIImage to desired size
     /// - Parameters:
     ///   - size: ``CGSize`` to be resized to
     ///   - isOpaque: flag to tell is the image is transparent, default false
     /// - Returns: the resized ``UIImage``
     func resized(to size: CGSize, isOpaque: Bool = false) -> UIImage {
         let canvas = size
+        let format = self.imageRendererFormat
+        format.opaque = isOpaque
+        
+        let resizedImage = UIGraphicsImageRenderer(size: canvas, format: format).image { (context: UIGraphicsImageRendererContext) in
+            draw(in: CGRect(origin: .zero, size: canvas))
+        }
+        
+        return resizedImage
+    }
+
+
+    ///  Method to resize UIImage to desired width maintaining aspect ratio
+    /// - Parameters:
+    ///   - width: of the resized UIImage
+    ///   - isOpaque: flag to tell is the image is transparent, default false
+    /// - Returns: the resized ``UIImage``
+    func resized(toWidth width: CGFloat, isOpaque: Bool = true) -> UIImage {
+        let canvas = CGSize(width: width, height: CGFloat(ceil(width/size.width * size.height)))
         let format = self.imageRendererFormat
         format.opaque = isOpaque
         
