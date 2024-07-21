@@ -16,6 +16,7 @@ One can embed this in a any iOS/macOS/visionOS app and colorize old b&w images
 - [At BWColorizer SwiftUI App](./BWColorizer/BWColorizer/)
 - [Video](https://github.com/c2p-cmd/b-w_colorization/raw/main/Simulator%20Screen%20Recording%20-%20iPhone%2015%20Pro%20-%202024-07-20%20at%2018.39.56.mp4)
 <video src="https://github.com/c2p-cmd/b-w_colorization/raw/main/Simulator%20Screen%20Recording%20-%20iPhone%2015%20Pro%20-%202024-07-20%20at%2018.39.56.mp4">
+</video>
 
 #### How it works?
 - Essentialy this is a pytorch model [ECCV16Colorizer](https://github.com/richzhang/colorization/blob/master/colorizers/eccv16.py) that has been converted to CoreML
