@@ -24,35 +24,59 @@ struct ContentView: View {
                 vm.isBusy = true
                 vm.showPicker = true
             }
+            .fontWeight(.semibold)
             .fullScreenCover(isPresented: $vm.showPicker) {
                 PickerView
             }
             
-            if let inputImage = vm.inputImage {
-                Image(uiImage: inputImage)
-                    .resizable()
-                    .aspectRatio(contentMode: .fit)
-                
-                Button("Colorize!") {
-                    vm.process(from: inputImage)
+            HStack {
+                if let inputImage = vm.inputImage {
+                    Image(uiImage: inputImage)
+                        .resizable()
+                        .aspectRatio(contentMode: .fit)
+                        .clipShape(.rect(cornerRadius: 10, style: .continuous))
                 }
-            }
-            
-            if let outputImage = vm.outputImage {
-                Image(uiImage: outputImage)
-                    .resizable()
-                    .aspectRatio(contentMode: .fit)
+                
+                if let outputImage = vm.outputImage {
+                    Image(uiImage: outputImage)
+                        .resizable()
+                        .aspectRatio(contentMode: .fit)
+                        .clipShape(.rect(cornerRadius: 10, style: .continuous))
+                }
+                
+                if vm.outputImage == nil && vm.inputImage == nil {
+                    Text("Please choose a Black & White Image")
+                }
             }
         }
         .toolbar {
             if let inputImage = vm.inputImage, let outputImage = vm.outputImage {
-                ShareLink(
-                    items: [
-                        Photo(image: inputImage, caption: "B&W Image"),
-                        Photo(image: outputImage, caption: "Colorized Image")
-                    ]
-                ) { img in
-                    SharePreview(img.caption, image: img.image)
+                ToolbarItem(placement: .automatic) {
+                    ShareLink(
+                        items: [
+                            Photo(image: inputImage, caption: "B&W Image"),
+                            Photo(image: outputImage, caption: "Colorized Image")
+                        ],
+                        subject: Text("B&W image and colorized Image!")
+                    ) { img in
+                        SharePreview(img.caption, image: img.image)
+                    }
+                }
+            }
+            
+            if let inputImage = vm.inputImage {
+                ToolbarItem(placement: .bottomBar) {
+                    Button {
+                        vm.process(from: inputImage)
+                    } label: {
+                        HStack {
+                            Image(systemName: "paintpalette.fill")
+                            Text("Colorize!")
+                                .fontWeight(.semibold)
+                        }
+                    }
+                    .tint(.orange)
+                    .buttonStyle(BorderedButtonStyle())
                 }
             }
         }
@@ -85,7 +109,7 @@ struct ContentView: View {
 extension ContentView {
     @Observable
     class ViewModel {
-        let model: ECCV16Colorize?
+        private let model: ECCV16Colorize?
         
         var inputImage: UIImage?
         var outputImage: UIImage?
@@ -122,11 +146,12 @@ extension ContentView {
             self.isBusy = false
         }
         
+        /// Creates a task to run ineference so the Main thread isn't blocked
         func process(from uiImage: UIImage) {
             Task.init {
                 self.isBusy = true
                 self.outputImage = nil
-                let originalImage = uiImage
+                let originalImage = uiImage.resized(toWidth: 512)
 
                 guard let (originalL, resizedL) = originalImage.toL() else {
                     self.error = AppError("Cannot convert to Lab color space")
