@@ -8,11 +8,15 @@
 import SwiftUI
 import CoreML
 
+/// To Make Sharing an ``UIImage`` easier using ``ShareLink``
 struct Photo: Transferable {
     static var transferRepresentation: some TransferRepresentation {
         ProxyRepresentation(exporting: \.image)
     }
     
+    /// - Parameters:
+    ///   - image: ``UIImage`` to share 
+    ///   - caption: soemthing about the image
     init(image: UIImage, caption: String) {
         self.image = Image(uiImage: image)
         self.caption = caption
@@ -22,6 +26,7 @@ struct Photo: Transferable {
     let caption: String
 }
 
+/// Localized Error to use in app
 struct AppError: LocalizedError {
     let message: String
     
@@ -35,6 +40,11 @@ struct AppError: LocalizedError {
 }
 
 extension UIImage {
+    ///  A method to resize the UIImage to 
+    /// - Parameters:
+    ///   - size: ``CGSize`` to be resized to
+    ///   - isOpaque: flag to tell is the image is transparent, default false
+    /// - Returns: the resized ``UIImage``
     func resized(to size: CGSize, isOpaque: Bool = false) -> UIImage {
         let canvas = size
         let format = self.imageRendererFormat
@@ -47,6 +57,8 @@ extension UIImage {
         return resizedImage
     }
     
+    ///  Converts the image to Lab Color Space
+    /// - Returns: A tuple of ``MLShapedArray<Float32>`` if CGImage is not null else `nil`
     func toL() -> (MLShapedArray<Float32>, MLShapedArray<Float32>)? {
         guard let cgImage = self.cgImage else { return nil }
         
@@ -59,6 +71,9 @@ extension UIImage {
         return (originalL, resizedL)
     }
     
+    ///  Method to convert `RGB` ``CGImage`` to Lab's LChannel array
+    /// - Parameter cgImage: RGB Image
+    /// - Returns: ``MLShapedArray<Float32>`` of LChannle
     private func rgbToL(cgImage: CGImage) -> MLShapedArray<Float32> {
         let width = cgImage.width
         let height = cgImage.height
@@ -90,7 +105,14 @@ extension UIImage {
     }
 }
 
+/// Colorizer enum containing methods for postprocess business logic
 enum Colorizer {
+    ///  Postprocessing tensor back to ``UIImage``
+    /// - Parameters:
+    ///   - originalL: tensor of original image's LChannel
+    ///   - resizedL: tensor of resized images's LChannel
+    ///   - abOutput: tensor output of predicted abChannels from model
+    /// - Returns: ``UIImage`` of final combined output
     public static func processColorizer(
         originalL: MLShapedArray<Float32>,
         resizedL: MLShapedArray<Float32>,
@@ -133,6 +155,12 @@ enum Colorizer {
         return labToRGBImage(labArray: labArray, width: originalWidth, height: originalHeight)
     }
 
+
+    ///  Internal method to resize predicted ab Channels tensor to orignal shape
+    /// - Parameters:
+    ///   - ab: predicted tensor from model
+    ///   - size: Shape of original image
+    /// - Returns: resized tensor
     private static func resizeAB(
         _ ab: MLShapedArray<Float32>,
         toSize size: [Int]
@@ -177,6 +205,12 @@ enum Colorizer {
         return resized
     }
 
+    ///  Internal Method to convert Lab to RGB Image tensor
+    /// - Parameters:
+    ///   - labArray: flat array of tensor values
+    ///   - width: of the image
+    ///   - height: of the image
+    /// - Returns: ``UIImage`` if CGDataProvider is not null else `nil`
     private static func labToRGBImage(
         labArray: [Float32],
         width: Int,
